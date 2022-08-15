@@ -49,4 +49,42 @@ class Song
     song.save
   end
 
+  # converts database into ruby object so we can read it
+  def self.new_from_db(row)
+    # self.new is equivalent to Song.new
+    self.new(id: row[0], name: row[1], album: row[2])
+  end
+
+  # returns all instances of class object
+  def self.all
+    sql = <<-SQL
+      SELECT *
+      FROM songs
+    SQL
+    # ^ returns an array of rows from database that matches query
+
+    # v iterates over row to show all from database
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
+    end
+
+  end
+
+  def self.find_by_name(name)
+    sql = <<-SQL
+      SELECT *
+      FROM songs
+      WHERE name = ?
+      LIMIT 1
+    SQL
+
+    # go through each row, look at each name
+    DB[:conn].execute(sql, name).map do |row|
+      # in each row
+      self.new_from_db(row)
+    # return first match 
+    end.first
+  end
+
+
 end
